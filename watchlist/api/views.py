@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from watchlist.api.serializers import MovieSerializer
-from watchlist.models import Movie
+from watchlist.models import WatchMoviesList
 
 
 # class based view
@@ -12,7 +12,7 @@ class MovieList(APIView):
     """List all movies."""
 
     def get(self, request):
-        movies = Movie.objects.all()
+        movies = WatchMoviesList.objects.all()
         serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data)
 
@@ -29,9 +29,9 @@ class MovieDetail(APIView):
 
     def get_object(self, movie_id):
         try:
-            movie = Movie.objects.get(pk=movie_id)
+            movie = WatchMoviesList.objects.get(pk=movie_id)
             return movie
-        except Movie.DoesNotExist:
+        except WatchMoviesList.DoesNotExist:
             return Response(data={'Error': 'Movie not found'},
                             status=status.HTTP_404_NOT_FOUND)
 
@@ -42,8 +42,8 @@ class MovieDetail(APIView):
 
     def get(self, request, movie_id):
         try:
-            movie = Movie.objects.get(pk=movie_id)
-        except Movie.DoesNotExist:
+            movie = WatchMoviesList.objects.get(pk=movie_id)
+        except WatchMoviesList.DoesNotExist:
             return Response(data={'Error': 'Movie not found'},
                             status=status.HTTP_404_NOT_FOUND)
         serializer = MovieSerializer(movie)
@@ -51,8 +51,8 @@ class MovieDetail(APIView):
 
     def put(self, request, movie_id):
         try:
-            movie = Movie.objects.get(pk=movie_id)
-        except Movie.DoesNotExist:
+            movie = WatchMoviesList.objects.get(pk=movie_id)
+        except WatchMoviesList.DoesNotExist:
             return Response(data={'Error': 'Movie not found'},
                             status=status.HTTP_404_NOT_FOUND)
         serializer = MovieSerializer(movie, data=request.data)
@@ -63,8 +63,8 @@ class MovieDetail(APIView):
 
     def delete(self, request, movie_id):
         try:
-            movie = Movie.objects.get(pk=movie_id)
-        except Movie.DoesNotExist:
+            movie = WatchMoviesList.objects.get(pk=movie_id)
+        except WatchMoviesList.DoesNotExist:
             return Response(data={'Error': 'Movie not found'},
                             status=status.HTTP_404_NOT_FOUND)
         movie.delete()
@@ -75,7 +75,7 @@ class MovieDetail(APIView):
 # def movie_list(request):
 #     """List all movies."""
 #     if request.method == 'GET':
-#         movies = Movie.objects.all()
+#         movies = WatchMoviesList.objects.all()
 #         serializer = MovieSerializer(movies, many=True)
 #         return Response(serializer.data)
 #
@@ -95,8 +95,8 @@ class MovieDetail(APIView):
 #     """Retrieve a movie."""
 #     if request.method == 'GET':
 #         try:
-#             movie = Movie.objects.get(pk=movie_id)
-#         except Movie.DoesNotExist:
+#             movie = WatchMoviesList.objects.get(pk=movie_id)
+#         except WatchMoviesList.DoesNotExist:
 #             return Response(data={'Error': 'Movie not found'},
 #                             status=status.HTTP_404_NOT_FOUND)
 #         serializer = MovieSerializer(movie)
@@ -104,8 +104,8 @@ class MovieDetail(APIView):
 #
 #     if request.method == 'PUT':
 #         try:
-#             movie = Movie.objects.get(pk=movie_id)
-#         except Movie.DoesNotExist:
+#             movie = WatchMoviesList.objects.get(pk=movie_id)
+#         except WatchMoviesList.DoesNotExist:
 #             return Response(data={'Error': 'Movie not found'},
 #                             status=status.HTTP_404_NOT_FOUND)
 #         serializer = MovieSerializer(movie, data=request.data)
@@ -116,8 +116,8 @@ class MovieDetail(APIView):
 #
 #     if request.method == 'DELETE':
 #         try:
-#             movie = Movie.objects.get(pk=movie_id)
-#         except Movie.DoesNotExist:
+#             movie = WatchMoviesList.objects.get(pk=movie_id)
+#         except WatchMoviesList.DoesNotExist:
 #             return Response(data={'Error': 'Movie not found'},
 #                             status=status.HTTP_404_NOT_FOUND)
 #         movie.delete()

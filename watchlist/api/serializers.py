@@ -1,7 +1,7 @@
 """Serializers for the watchlist app."""
 from rest_framework import serializers
 
-from watchlist.models import Movie
+from watchlist.models import WatchMoviesList
 
 
 # we can use ModelSerializer to create a serializer
@@ -10,7 +10,7 @@ class MovieSerializer(serializers.ModelSerializer):
     len_title = serializers.SerializerMethodField()
 
     class Meta:
-        model = Movie
+        model = WatchMoviesList
         # fields = '__all__'
         exclude = ('id', 'date_added',)
 
@@ -21,7 +21,7 @@ class MovieSerializer(serializers.ModelSerializer):
         if len(value) < 2:
             raise serializers.ValidationError('Title is too short')
 
-        if Movie.objects.filter(title=value).exists():
+        if WatchMoviesList.objects.filter(title=value).exists():
             raise serializers.ValidationError("Title already exists")
 
         return value
@@ -35,12 +35,12 @@ class MovieSerializer(serializers.ModelSerializer):
 # we can use serializers.Serializer to create a serializer
 # # other types of validators
 # def title_unique(value):
-#     if Movie.objects.filter(title=value).exists():
+#     if WatchMoviesList.objects.filter(title=value).exists():
 #         raise serializers.ValidationError('Title must be unique')
 #     return value
 #
 #
-# class MovieSerializer(serializers.Serializer):
+# class WatchMoviesList(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
 #     title = serializers.CharField(max_length=200, validators=[title_unique]
 #                                   )  # validators are used to check if the title is unique
@@ -49,7 +49,7 @@ class MovieSerializer(serializers.ModelSerializer):
 #     year = serializers.IntegerField()
 #
 #     def create(self, validated_data):
-#         return Movie.objects.create(**validated_data)
+#         return WatchMoviesList.objects.create(**validated_data)
 #
 #     def update(self, instance, validated_data):
 #         # instance.title is the old title
