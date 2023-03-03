@@ -1,8 +1,6 @@
 from django.db import models
 
 
-
-
 class StreamPlatform(models.Model):
     """A stream platform is a service where movies and TV shows are streamed."""
     name = models.CharField(max_length=200)
