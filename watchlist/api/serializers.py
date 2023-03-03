@@ -1,7 +1,20 @@
 """Serializers for the watchlist app."""
 from rest_framework import serializers
 
-from watchlist.models import WatchMoviesList
+from watchlist.models import WatchMoviesList, StreamPlatform
+
+
+class StreamPlatformSerializer(serializers.ModelSerializer):
+    """Serializer for the stream platform model."""
+
+    class Meta:
+        model = StreamPlatform
+        fields = '__all__'
+
+    def validateـabout(self, value):
+        if len(value) > 500:
+            raise serializers.ValidationError('About platform is too long it should be less than 500 characters')
+        return value
 
 
 # we can use ModelSerializer to create a serializer
