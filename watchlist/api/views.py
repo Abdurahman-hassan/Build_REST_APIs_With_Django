@@ -3,8 +3,54 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from watchlist.api.serializers import MovieSerializer
-from watchlist.models import WatchMoviesList
+from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer
+from watchlist.models import WatchMoviesList, StreamPlatform
+
+
+class StreamPlatformList(APIView):
+    """List all stream platforms."""
+    # add validation to the view
+    def get(self, request):
+        stream_platforms = StreamPlatform.objects.all()
+        serializer = StreamPlatformSerializer(stream_platforms, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = StreamPlatformSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StreamPlatformDetail(APIView):
+    """Retrieve a stream platform."""
+
+    def get_object(self, platform_id):
+        try:
+            platform = StreamPlatform.objects.get(pk=platform_id)
+            return platform
+        except StreamPlatform.DoesNotExist:
+            return Response(data={'Error': 'Platform not found'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, platform_id):
+        platform = self.get_object(platform_id)
+        serializer = StreamPlatformSerializer(platform)
+        return Response(serializer.data)
+
+    def put(self, request, platform_id):
+        platform = self.get_object(platform_id)
+        serializer = StreamPlatformSerializer(platform, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, platform_id):
+        platform = self.get_object(platform_id)
+        platform.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # class based view
