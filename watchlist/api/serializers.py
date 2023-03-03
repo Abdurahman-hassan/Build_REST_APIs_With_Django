@@ -6,10 +6,16 @@ from watchlist.models import Movie
 
 # we can use ModelSerializer to create a serializer
 class MovieSerializer(serializers.ModelSerializer):
+    # we can add extra fields to the serializer
+    len_title = serializers.SerializerMethodField()
+
     class Meta:
         model = Movie
         # fields = '__all__'
-        exclude = ('id',)
+        exclude = ('id', 'date_added',)
+
+    def get_len_title(self, obj):
+        return len(obj.title)
 
     def validate_title(self, value):
         if len(value) < 2:
@@ -25,7 +31,6 @@ class MovieSerializer(serializers.ModelSerializer):
         if data['title'] == data['description']:
             raise serializers.ValidationError('Title and description must be different')
         return data
-
 
 # we can use serializers.Serializer to create a serializer
 # # other types of validators
