@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer
 from watchlist.models import WatchMoviesList, StreamPlatform
+from django.http import Http404
 
 
 class StreamPlatformList(APIView):
@@ -31,16 +32,23 @@ class StreamPlatformDetail(APIView):
             platform = StreamPlatform.objects.get(pk=platform_id)
             return platform
         except StreamPlatform.DoesNotExist:
-            return Response(data={'Error': 'Platform not found'},
-                            status=status.HTTP_404_NOT_FOUND)
+            raise Http404
 
     def get(self, request, platform_id):
-        platform = self.get_object(platform_id)
+        try:
+            platform = self.get_object(platform_id)
+        except Http404:
+            return Response(data={'Error': 'Platform not found to retrieve.'},
+                            status=status.HTTP_404_NOT_FOUND)
         serializer = StreamPlatformSerializer(platform)
         return Response(serializer.data)
 
     def put(self, request, platform_id):
-        platform = self.get_object(platform_id)
+        try:
+            platform = self.get_object(platform_id)
+        except Http404:
+            return Response(data={'Error': 'Platform not found to update.'},
+                            status=status.HTTP_404_NOT_FOUND)
         serializer = StreamPlatformSerializer(platform, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -48,7 +56,11 @@ class StreamPlatformDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, platform_id):
-        platform = self.get_object(platform_id)
+        try:
+            platform = self.get_object(platform_id)
+        except Http404:
+            return Response(data={'Error': 'Platform not found to delete.'},
+                            status=status.HTTP_404_NOT_FOUND)
         platform.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
