@@ -18,6 +18,8 @@ class WatchMoviesList(models.Model):
     active = models.BooleanField(default=True)
     year = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)
+    # each watchlist item has one stream platform
+    # and each stream platform has many watchlist items
     platform = models.ForeignKey(StreamPlatform,
                                  on_delete=models.CASCADE,
                                  related_name='watchlist')
