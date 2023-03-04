@@ -4,19 +4,6 @@ from rest_framework import serializers
 from watchlist.models import WatchMoviesList, StreamPlatform
 
 
-class StreamPlatformSerializer(serializers.ModelSerializer):
-    """Serializer for the stream platform model."""
-
-    class Meta:
-        model = StreamPlatform
-        fields = '__all__'
-
-    def validateـabout(self, value):
-        if len(value) > 500:
-            raise serializers.ValidationError('About platform is too long it should be less than 500 characters')
-        return value
-
-
 # we can use ModelSerializer to create a serializer
 class MovieSerializer(serializers.ModelSerializer):
     # we can add extra fields to the serializer
@@ -45,13 +32,32 @@ class MovieSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Title and description must be different')
         return data
 
-# we can use serializers.Serializer to create a serializer
-# # other types of validators
-# def title_unique(value):
-#     if WatchMoviesList.objects.filter(title=value).exists():
-#         raise serializers.ValidationError('Title must be unique')
-#     return value
-#
+
+class StreamPlatformSerializer(serializers.ModelSerializer):
+    """Serializer for the stream platform model."""
+    # we can use the related_name to get the related objects of watchlist in the stream platform
+    watchlist = MovieSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = StreamPlatform
+        exclude = ('id',)
+    def validateـabout(self, value):
+        if len(value) > 500:
+            raise serializers.ValidationError('About platform is too long it should be less than 500 characters')
+        return value
+
+        # we can use serializers.Serializer to create a serializer
+        # other types of validators
+
+    def validate_name(self, value):
+        if len(value) < 2:
+            raise serializers.ValidationError('name is too short')
+
+        if StreamPlatform.objects.filter(name=value).exists():
+            raise serializers.ValidationError("name already exists")
+
+        return value
+
 #
 # class WatchMoviesList(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
