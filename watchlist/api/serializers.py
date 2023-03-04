@@ -37,7 +37,14 @@ class StreamPlatformSerializer(serializers.ModelSerializer):
     """Serializer for the stream platform model."""
     # we can use the related_name to get the related objects of watchlist in the stream platform
     watchlist = MovieSerializer(many=True, read_only=True)
-
+    # add string related field to get specific fields of the related objects not all of them
+    # watchlist = serializers.StringRelatedField(many=True, read_only=True)
+    # add primary key related field to get the primary key of the related objects
+    # watchlist = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # add hyperlink related field to get the url of the related objects
+    # watchlist = serializers.HyperlinkedRelatedField(
+    #     many=True, read_only=True, view_name='movie_detail'
+    # )
     class Meta:
         model = StreamPlatform
         exclude = ('id',)
