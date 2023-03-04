@@ -13,7 +13,11 @@ class StreamPlatformList(APIView):
     # add validation to the view
     def get(self, request):
         stream_platforms = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(stream_platforms, many=True)
+        # we add context={'request': request} to get the url of the related objects in the serializer
+        serializer = StreamPlatformSerializer(stream_platforms,
+                                              many=True,
+                                              context={'request': request})
+
         return Response(serializer.data)
 
     def post(self, request):
