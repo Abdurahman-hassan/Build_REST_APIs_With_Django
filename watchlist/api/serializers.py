@@ -37,6 +37,7 @@ class StreamPlatformSerializer(serializers.ModelSerializer):
     """Serializer for the stream platform model."""
     # we can use the related_name to get the related objects of watchlist in the stream platform
     watchlist = MovieSerializer(many=True, read_only=True)
+
     # add string related field to get specific fields of the related objects not all of them
     # watchlist = serializers.StringRelatedField(many=True, read_only=True)
     # add primary key related field to get the primary key of the related objects
@@ -48,6 +49,7 @@ class StreamPlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = StreamPlatform
         exclude = ('id',)
+
     def validateـabout(self, value):
         if len(value) > 500:
             raise serializers.ValidationError('About platform is too long it should be less than 500 characters')
