@@ -102,42 +102,48 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 #     def post(self, request, *args, **kwargs):
 #         return self.create(request, *args, **kwargs)
 
+# model viewset
+class StreamPlatformVs(viewsets.ModelViewSet):
+    """List all stream platforms."""
+    queryset = StreamPlatform.objects.all()
+    # serializer_class is a unique attribute name and we can't change it
+    serializer_class = StreamPlatformSerializer
 
 # ViewSets
 
-class StreamPlatformVs(viewsets.ViewSet):
-    """List all stream platforms."""
-
-    def list(self, request):
-        queryset = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, pk=None):
-        queryset = StreamPlatform.objects.all()
-        platform = get_object_or_404(queryset, pk=pk)
-        serializer = StreamPlatformSerializer(platform)
-        return Response(serializer.data)
-
-    def create(self, request):
-        serializer = StreamPlatformSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def update(self, request, pk=None):
-        platform = StreamPlatform.objects.get(pk=pk)
-        serializer = StreamPlatformSerializer(platform, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request, pk=None):
-        platform = StreamPlatform.objects.get(pk=pk)
-        platform.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# class StreamPlatformVs(viewsets.ViewSet):
+#     """List all stream platforms."""
+#
+#     def list(self, request):
+#         queryset = StreamPlatform.objects.all()
+#         serializer = StreamPlatformSerializer(queryset, many=True)
+#         return Response(serializer.data)
+#
+#     def retrieve(self, request, pk=None):
+#         queryset = StreamPlatform.objects.all()
+#         platform = get_object_or_404(queryset, pk=pk)
+#         serializer = StreamPlatformSerializer(platform)
+#         return Response(serializer.data)
+#
+#     def create(self, request):
+#         serializer = StreamPlatformSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def update(self, request, pk=None):
+#         platform = StreamPlatform.objects.get(pk=pk)
+#         serializer = StreamPlatformSerializer(platform, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def destroy(self, request, pk=None):
+#         platform = StreamPlatform.objects.get(pk=pk)
+#         platform.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
 # API View
 
 class StreamPlatformList(APIView):
