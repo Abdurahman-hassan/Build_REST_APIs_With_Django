@@ -1,13 +1,26 @@
 """Serializers for the watchlist app."""
 from rest_framework import serializers
 
-from watchlist.models import WatchMoviesList, StreamPlatform
+from watchlist.models import WatchMoviesList, StreamPlatform, Review
+
+
+# each Stream has a list of movies -> many movies to one stream
+# each movie has one stream -> one stream to many movies
+# also each movie has a list of reviews -> many reviews to one movie
+# each review has one movie -> one movie to many reviews
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for the review model."""
+    class Meta:
+        model = Review
+        fields = '__all__'
 
 
 # we can use ModelSerializer to create a serializer
 class MovieSerializer(serializers.ModelSerializer):
     # we can add extra fields to the serializer
     len_title = serializers.SerializerMethodField()
+    reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = WatchMoviesList
