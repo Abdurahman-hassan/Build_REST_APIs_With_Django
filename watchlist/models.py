@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
@@ -31,6 +32,8 @@ class WatchMoviesList(models.Model):
 
 class Review(models.Model):
     """A review for a movie."""
+    reviewer = models.ForeignKey(User,
+                                 on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1),
                                                      MaxValueValidator(5)])
     review = models.CharField(max_length=200, null=True)
@@ -41,8 +44,8 @@ class Review(models.Model):
     # each review has one movie
     # and each movie has many reviews
     watchlist = models.ForeignKey(WatchMoviesList,
-                              on_delete=models.CASCADE,
-                              related_name='reviews')
+                                  on_delete=models.CASCADE,
+                                  related_name='reviews')
 
     def __str__(self):
         return f"{self.watchlist.title} ({self.rating})"
