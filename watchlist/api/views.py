@@ -1,7 +1,7 @@
 """Views for the API."""
 from django.http import Http404
 from rest_framework import status, generics, viewsets
-from rest_framework.generics import get_object_or_404
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,13 +20,21 @@ class ReviewCreate(generics.CreateAPIView):
     """
     serializer_class = ReviewSerializer
 
+    def get_queryset(self):
+        return Review.objects.all()
+
     #
     def perform_create(self, serializer):
         # the pk is the movie id
         watchlist_id = self.kwargs['watchlist_id']
         movie = WatchMoviesList.objects.get(pk=watchlist_id)
+
+        user = self.request.user
+        review_queryset = Review.objects.filter(watchlist=movie, reviewer=user)
+        if review_queryset.exists():
+            raise ValidationError('You have already reviewed this movie')
         # we need to pass the movie to the serializer to save it in the review model
-        serializer.save(watchlist=movie)
+        serializer.save(watchlist=movie, reviewer=user)
 
 
 class ReviewList(generics.ListAPIView):
@@ -108,6 +116,7 @@ class StreamPlatformVs(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
     # serializer_class is a unique attribute name and we can't change it
     serializer_class = StreamPlatformSerializer
+
 
 # ViewSets
 
