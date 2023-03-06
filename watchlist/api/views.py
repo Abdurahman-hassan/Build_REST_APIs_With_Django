@@ -7,23 +7,62 @@ from rest_framework.views import APIView
 from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer, ReviewSerializer
 from watchlist.models import WatchMoviesList, StreamPlatform, Review
 
+
 # We will use the generic class based views itself
 # we don't need to define the get, post, put, delete methods
 # it will be done automatically because it's inherited the mixins.
 
 
-class ReviewList(generics.ListCreateAPIView):
+class ReviewCreate(generics.CreateAPIView):
+    """Create a review,
+       This class doesn't have a queryset because we don't need to get the reviews.
+    """
+    serializer_class = ReviewSerializer
+
+    #
+    def perform_create(self, serializer):
+        # the pk is the movie id
+        watchlist_id = self.kwargs['watchlist_id']
+        movie = WatchMoviesList.objects.get(pk=watchlist_id)
+        # we need to pass the movie to the serializer to save it in the review model
+        serializer.save(watchlist=movie)
+
+
+class ReviewList(generics.ListAPIView):
     """List all reviews."""
     # ListCreate will give us the get and post methods
-    queryset = Review.objects.all()
+    # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    # we need to override the get_queryset method to filter the reviews by platform_id
+
+    # watchlist is the related name of the foreign key in the Review model
+    def get_queryset(self):
+        watch_list = self.kwargs['watchlist_id']
+        return Review.objects.filter(watchlist=watch_list)
+
+    # or
+
+    # def get_queryset(self):
+    #     if self.kwargs.get('platform_id'):
+    #         return Review.objects.filter(watchlist=self.kwargs.get('platform_id'))
+    #     return Review.objects.all()
+    #
+    # # or
+    # def get_queryset(self):
+    #     pk = self.kwargs['platform_id']
+    #     return Review.objects.filter(watchlist=pk) if pk else Review.objects.all()
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update or delete a review."""
     # RetrieveUpdateDestroy will give us the get, put, delete methods
-    queryset = Review.objects.all()
+    # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        watch_list = self.kwargs['watchlist_id']
+        return Review.objects.filter(watchlist=watch_list)
 
 
 # Mixins
