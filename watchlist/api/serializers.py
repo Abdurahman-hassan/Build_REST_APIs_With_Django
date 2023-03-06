@@ -13,7 +13,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     """Serializer for the review model."""
     class Meta:
         model = Review
-        fields = '__all__'
+        exclude = ('watchlist',)
 
 
 # we can use ModelSerializer to create a serializer
@@ -25,7 +25,7 @@ class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = WatchMoviesList
         # fields = '__all__'
-        exclude = ('id', 'date_added',)
+        exclude = ('date_added',)
 
     def get_len_title(self, obj):
         return len(obj.title)
