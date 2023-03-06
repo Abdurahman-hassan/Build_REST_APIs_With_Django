@@ -4,7 +4,7 @@ from django.urls import path
 from watchlist.api.views import \
     (
     # movie_list, movie_detail,
-    MovieList, MovieDetail, StreamPlatformList, StreamPlatformDetail, ReviewList, ReviewDetail,
+    MovieList, MovieDetail, StreamPlatformList, StreamPlatformDetail, ReviewList, ReviewDetail, ReviewCreate,
 )
 
 app_name = 'watchlist'
@@ -18,7 +18,8 @@ urlpatterns = [
     path('stream/', StreamPlatformList.as_view(), name='streamplatform-list'),
     path('stream/<int:platform_id>/', StreamPlatformDetail.as_view(), name='streamplatform-detail'),
 
-    # generic class based views
-    path('review/', ReviewList.as_view(), name='review-list'),
-    path('review/<int:pk>/', ReviewDetail.as_view(), name='review-detail'),
+    # generic class based views with relationships
+    path('stream/<int:watchlist_id>/review-create/', ReviewCreate.as_view(), name='review-create'),
+    path('stream/<int:watchlist_id>/review/', ReviewList.as_view(), name='review-list'),
+    path('stream/<int:watchlist_id>/review/<int:pk>/', ReviewDetail.as_view(), name='review-detail'),
 ]
