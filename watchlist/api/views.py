@@ -101,6 +101,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 #     def post(self, request, *args, **kwargs):
 #         return self.create(request, *args, **kwargs)
 
+# API View
 
 class StreamPlatformList(APIView):
     """List all stream platforms."""
