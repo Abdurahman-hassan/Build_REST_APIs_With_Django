@@ -1,15 +1,52 @@
 """Views for the API."""
-from rest_framework import status
+from django.http import Http404
+from rest_framework import status, mixins, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer
-from watchlist.models import WatchMoviesList, StreamPlatform
-from django.http import Http404
+from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer, ReviewSerializer
+from watchlist.models import WatchMoviesList, StreamPlatform, Review
+
+
+class ReviewDetail(mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
+                   generics.GenericAPIView):
+    """Retrieve, update or delete a review."""
+
+    # These are attributes names and we can't change them
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class ReviewList(mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 generics.GenericAPIView):
+    """List all reviews."""
+
+    # These are attributes names and we can't change them
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class StreamPlatformList(APIView):
     """List all stream platforms."""
+
     # add validation to the view
     def get(self, request):
         stream_platforms = StreamPlatform.objects.all()
