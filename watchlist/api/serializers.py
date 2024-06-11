@@ -4,6 +4,25 @@ from rest_framework import serializers
 from watchlist.models import WatchMoviesList, StreamPlatform, Review
 
 
+############################################################################################################
+# step by step to create a serializer, manually
+# I need to convert the 3 simple views that handle
+# manually the serialization and deserialization of the data
+# to use the serializer class
+# movie_list_manual_serializer_deserializer,
+# single_movie_manual_serializer_deserializer,
+# movie_detail_manual_serializer_deserializer
+
+class ManualMovieSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    description = serializers.CharField()
+    active = serializers.BooleanField(default=False)
+
+
+
+
+
 # each Stream has a list of movies -> many movies to one stream
 # each movie has one stream -> one stream to many movies
 # also each movie has a list of reviews -> many reviews to one movie
@@ -12,6 +31,7 @@ from watchlist.models import WatchMoviesList, StreamPlatform, Review
 class ReviewSerializer(serializers.ModelSerializer):
     """Serializer for the review model."""
     reviewer = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = Review
         exclude = ('watchlist',)
