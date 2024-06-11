@@ -1,23 +1,21 @@
 """Views for the API."""
 from django.http import Http404
 from rest_framework import status, generics, viewsets
+from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer, ReviewSerializer
+from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer, ReviewSerializer, ManualMovieSerializer
 from watchlist.models import WatchMoviesList, StreamPlatform, Review
 
-
 ############################################################################################################
-#function based views
-"""Views for the watchlist app."""
+# function based views manual serialization/ deserialization
 from django.http import JsonResponse
-
 from watchlist.models import Movie
 
 
-def movie_list(request):
+def movie_list_manual_serializer_deserializer(request):
     movies = Movie.objects.all()
     # all returns a queryset, so we need to convert it to a list
     print(movies.values('name', 'description'))
@@ -27,7 +25,7 @@ def movie_list(request):
     return JsonResponse(data)
 
 
-def single_movie(request, movie_id):
+def single_movie_manual_serializer_deserializer(request, movie_id):
     movie = Movie.objects.get(pk=movie_id)
     # get returns a single object, so we can access its attributes directly
     data = {
@@ -39,7 +37,7 @@ def single_movie(request, movie_id):
     return JsonResponse(data)
 
 
-def movie_detail(request, movie_id):
+def movie_detail_manual_serializer_deserializer(request, movie_id):
     movie = Movie.objects.filter(pk=movie_id)
     # filter returns a queryset, so we need to convert it to a list
     data = {
@@ -47,10 +45,34 @@ def movie_detail(request, movie_id):
             list(movie.values('name', 'description'))
     }
     return JsonResponse(data)
+
+
 ############################################################################################################
+############################################################################################################
+# using a serializer class
+@api_view()
+def movie_list_using_serializer_class(request):
+    movies = Movie.objects.all()
+    serializer = ManualMovieSerializer(movies, many=True)
+    return Response(serializer.data)
+
+
+@api_view()
+def single_movie_using_serializer_class(request, movie_id):
+    movie = Movie.objects.get(pk=movie_id)
+    serializer = ManualMovieSerializer(movie)
+    return Response(serializer.data)
 
 
 
+def movie_detail_using_serializer_class(request, movie_id):
+    movie = Movie.objects.filter(pk=movie_id)
+    # filter returns a queryset, so we need to convert it to a list
+    serializer = ManualMovieSerializer(movie, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
+
+############################################################################################################
 
 # We will use the generic class based views itself
 # we don't need to define the get, post, put, delete methods
