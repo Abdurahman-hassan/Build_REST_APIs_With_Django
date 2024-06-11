@@ -81,7 +81,7 @@ class StreamPlatformSerializer(serializers.ModelSerializer):
 
         return value
 
-#
+# from drf docs tutorial
 # class WatchMoviesList(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
 #     title = serializers.CharField(max_length=200, validators=[title_unique]
