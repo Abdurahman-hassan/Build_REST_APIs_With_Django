@@ -5,8 +5,20 @@ from rest_framework import routers
 from watchlist.api.views import \
     (
     # movie_list, movie_detail,
-    MovieList, MovieDetail, StreamPlatformList, StreamPlatformDetail, ReviewList, ReviewDetail, ReviewCreate,
-    StreamPlatformVs, movie_list, single_movie, movie_detail
+    MovieList,
+    MovieDetail,
+    StreamPlatformList,
+    StreamPlatformDetail,
+    ReviewList,
+    ReviewDetail,
+    ReviewCreate,
+    StreamPlatformVs,
+    movie_list_manual_serializer_deserializer,
+    single_movie_manual_serializer_deserializer,
+    movie_detail_manual_serializer_deserializer,
+    movie_list_using_serializer_class,
+    single_movie_using_serializer_class,
+    movie_detail_using_serializer_class
 )
 
 app_name = 'watchlist'
@@ -18,12 +30,22 @@ router.register('stream', StreamPlatformVs, basename='streamplatform')
 path('', include(router.urls)),
 
 urlpatterns = [
+    ##################################################################################
+    ##################################################################################
     # function based views
-    # path('list/', movie_list, name='movie_list'),
-    # path('<int:movie_id>', movie_detail, name='movie_detail'),
-    path('fbv-movie-list', movie_list, name='fbv_watchlist'),
-    path('fbv-movie-detail/<int:movie_id>', single_movie, name='fbv_movie_detail'),
-    path('fbv-movie-more-detail/<int:movie_id>', movie_detail, name='fbv_movie_more_detail'),
+    # using manual serializer and deserializer
+    # path('fbv-movie-list', movie_list_manual_serializer_deserializer, name='fbv_watchlist'),
+    # path('fbv-movie-detail/<int:movie_id>', single_movie_manual_serializer_deserializer, name='fbv_movie_detail'),
+    # path('fbv-movie-more-detail/<int:movie_id>', movie_detail_manual_serializer_deserializer,
+    #      name='fbv_movie_more_detail'),
+    ##################################################################################
+    # using a serializer class
+    path('fbv-movie-list', movie_list_using_serializer_class, name='fbv_watchlist'),
+    path('fbv-movie-detail/<int:movie_id>', single_movie_using_serializer_class, name='fbv_movie_detail'),
+    path('fbv-movie-more-detail/<int:movie_id>', movie_detail_using_serializer_class,
+         name='fbv_movie_more_detail'),
+    ##################################################################################
+    ##################################################################################
     # class based views
     path('list/', MovieList.as_view(), name='movie-list'),
     path('<int:movie_id>', MovieDetail.as_view(), name='movie-detail'),
