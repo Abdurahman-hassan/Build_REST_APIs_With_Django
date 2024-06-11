@@ -6,6 +6,7 @@ from watchlist.models import Movie
 
 def movie_list(request):
     movies = Movie.objects.all()
+    # all returns a queryset, so we need to convert it to a list
     print(movies.values('name', 'description'))
     data = {
         'movies': list(movies.values('name', 'description'))
