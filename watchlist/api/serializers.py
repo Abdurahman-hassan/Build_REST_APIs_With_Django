@@ -74,8 +74,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 # we can use ModelSerializer to create a serializer
 class MovieSerializer(serializers.ModelSerializer):
     # we can add extra fields to the serializer
-    len_title = serializers.SerializerMethodField()
-    reviews = ReviewSerializer(many=True, read_only=True)
+    len_name = serializers.SerializerMethodField()
+    len_description = serializers.SerializerMethodField()
+
+    # reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = WatchMoviesList
@@ -85,12 +87,12 @@ class MovieSerializer(serializers.ModelSerializer):
     def get_len_title(self, obj):
         return len(obj.title)
 
-    def validate_title(self, value):
-        if len(value) < 2:
-            raise serializers.ValidationError('Title is too short')
+    # The naming convention for the method should be get_fieldname
+    def get_len_name(self, object):
+        return len(object.name)
 
-        if WatchMoviesList.objects.filter(title=value).exists():
-            raise serializers.ValidationError("Title already exists")
+    def get_len_description(self, object):
+        return len(object.description)
 
         return value
 
