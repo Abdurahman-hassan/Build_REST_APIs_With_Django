@@ -92,8 +92,8 @@ class MovieSerializer(serializers.ModelSerializer):
         return len(object.description)
 
     def validate(self, data):
-        if data['title'] == data['description']:
-            raise serializers.ValidationError('Title and description must be different')
+        if data['name'] == data['description']:
+            raise serializers.ValidationError('Name and description must be different')
         return data
 
     # field level validation
