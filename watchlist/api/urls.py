@@ -32,7 +32,6 @@ urlpatterns = [
     ##################################################################################
     # function based views
     ##################################################################################
-    # function based views
     # using manual serializer and deserializer
     # path('fbv-movie-list', movie_list_manual_serializer_deserializer, name='fbv_watchlist'),
     # path('fbv-movie-detail/<int:movie_id>', single_movie_manual_serializer_deserializer, name='fbv_movie_detail'),
