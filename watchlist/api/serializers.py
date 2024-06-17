@@ -35,6 +35,17 @@ class ManualMovieSerializer(serializers.Serializer):
         instance.save()
         return instance
 
+    # object level validation
+    def validate(self, data):
+        if data['name'] == data['description']:
+            raise serializers.ValidationError('Name and description must be different')
+        return data
+
+    # field level validation
+    def validate_name(self, value):
+        if len(value) < 2:
+            raise serializers.ValidationError('Name is too short')
+        return value
 
 
 # each Stream has a list of movies -> many movies to one stream
