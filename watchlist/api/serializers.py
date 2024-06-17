@@ -5,6 +5,9 @@ from watchlist.models import WatchMoviesList, StreamPlatform, Review, Movie
 
 
 ############################################################################################################
+############################################################################################################
+# Manual Serializer
+############################################################################################################
 # step by step to create a serializer, manually
 # I need to convert the 3 simple views that handle
 # manually the serialization and deserialization of the data
@@ -46,6 +49,12 @@ class ManualMovieSerializer(serializers.Serializer):
         if len(value) < 2:
             raise serializers.ValidationError('Name is too short')
         return value
+
+
+############################################################################################################
+############################################################################################################
+# Model Serializer
+############################################################################################################
 
 
 # each Stream has a list of movies -> many movies to one stream
