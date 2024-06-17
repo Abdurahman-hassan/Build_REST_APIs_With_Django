@@ -6,7 +6,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer, ReviewSerializer, ManualMovieSerializer
+from watchlist.api.serializers import (MovieSerializer,
+                                       StreamPlatformSerializer,
+                                       ReviewSerializer,
+                                       ManualMovieSerializer)
 from watchlist.models import WatchMoviesList, StreamPlatform, Review
 from django.http import JsonResponse
 from watchlist.models import Movie
@@ -114,11 +117,11 @@ class MovieListAV(APIView):
 
     def get(self, request):
         movies = Movie.objects.all()
-        serializer = ManualMovieSerializer(movies, many=True)
+        serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = ManualMovieSerializer(data=request.data)
+        serializer = MovieSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             # this serializer.data is the data that we just created of the return of the serializer created function
@@ -138,12 +141,12 @@ class MovieDetailAV(APIView):
 
     def get(self, request, pk):
         movie = self.get_object(pk)
-        serializer = ManualMovieSerializer(movie)
+        serializer = MovieSerializer(movie)
         return Response(serializer.data)
 
     def put(self, request, pk):
         movie = self.get_object(pk)
-        serializer = ManualMovieSerializer(movie, data=request.data)
+        serializer = MovieSerializer(movie, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
