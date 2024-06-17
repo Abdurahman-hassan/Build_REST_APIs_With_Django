@@ -13,10 +13,16 @@ from watchlist.models import WatchMoviesList, StreamPlatform, Review, Movie
 # single_movie_manual_serializer_deserializer,
 # movie_detail_manual_serializer_deserializer
 
+# serializer level validation
+def description_length(value):
+    if len(value) < 10:
+        raise serializers.ValidationError('Description is too short')
+
+
 class ManualMovieSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField()
-    description = serializers.CharField()
+    description = serializers.CharField(validators=[description_length])
     active = serializers.BooleanField(default=False)
 
     def create(self, validated_data):
