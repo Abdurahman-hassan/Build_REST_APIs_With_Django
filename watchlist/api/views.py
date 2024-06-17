@@ -8,12 +8,14 @@ from rest_framework.views import APIView
 
 from watchlist.api.serializers import MovieSerializer, StreamPlatformSerializer, ReviewSerializer, ManualMovieSerializer
 from watchlist.models import WatchMoviesList, StreamPlatform, Review
-
-############################################################################################################
-# function based views manual serialization/ deserialization
 from django.http import JsonResponse
 from watchlist.models import Movie
 
+
+############################################################################################################
+############################################################################################################
+# function based views manual serialization/ deserialization
+############################################################################################################
 
 def movie_list_manual_serializer_deserializer(request):
     movies = Movie.objects.all()
@@ -48,27 +50,57 @@ def movie_detail_manual_serializer_deserializer(request, movie_id):
 
 
 ############################################################################################################
+# function based views using a serializer class
 ############################################################################################################
-# using a serializer class
-@api_view()
+@api_view(['GET', 'POST'])
 def movie_list_using_serializer_class(request):
-    movies = Movie.objects.all()
-    serializer = ManualMovieSerializer(movies, many=True)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        movies = Movie.objects.all()
+        serializer = ManualMovieSerializer(movies, many=True)
+        return Response(serializer.data)
+    if request.method == 'POST':
+        serializer = ManualMovieSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            # this serializer.data is the data that we just created of the return of the serializer created function
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view()
+@api_view(['GET', 'put', 'delete'])
 def single_movie_using_serializer_class(request, movie_id):
-    movie = Movie.objects.get(pk=movie_id)
-    serializer = ManualMovieSerializer(movie)
-    return Response(serializer.data)
+    if request.method == 'GET':
+        try:
+            movie = Movie.objects.get(pk=movie_id)
+        except Movie.DoesNotExist:
+            return Response(data={'Error': 'Movie not found'},
+                            status=status.HTTP_404_NOT_FOUND)
+        serializer = ManualMovieSerializer(movie)
+        return Response(serializer.data)
 
+    if request.method == 'PUT':
+        # if we didn't get which movie to update and send it to serializer
+        # it will create a new movie instead of updating the existing one
+        # we need to send the movie id in the request {'id':1, ...}
+        # or we can get which movie to update and send it to the serializer
+        movie = Movie.objects.get(pk=movie_id)
+        serializer = ManualMovieSerializer(movie, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        movie = Movie.objects.get(pk=movie_id)
+        movie.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 def movie_detail_using_serializer_class(request, movie_id):
     movie = Movie.objects.filter(pk=movie_id)
     # filter returns a queryset, so we need to convert it to a list
     serializer = ManualMovieSerializer(movie, many=True)
+    # if I will use JsonResponse i need to pass safe=False
     return JsonResponse(serializer.data, safe=False)
 
 
