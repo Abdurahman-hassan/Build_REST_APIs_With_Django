@@ -5,8 +5,6 @@ from rest_framework import routers
 from watchlist.api.views import \
     (
     # movie_list, movie_detail,
-    MovieList,
-    MovieDetail,
     StreamPlatformList,
     StreamPlatformDetail,
     ReviewList,
@@ -18,7 +16,7 @@ from watchlist.api.views import \
     movie_detail_manual_serializer_deserializer,
     movie_list_using_serializer_class,
     single_movie_using_serializer_class,
-    movie_detail_using_serializer_class
+    movie_detail_using_serializer_class, MovieListAV, MovieDetailAV
 )
 
 app_name = 'watchlist'
@@ -31,6 +29,8 @@ path('', include(router.urls)),
 
 urlpatterns = [
     ##################################################################################
+    ##################################################################################
+    # function based views
     ##################################################################################
     # function based views
     # using manual serializer and deserializer
@@ -47,8 +47,11 @@ urlpatterns = [
     ##################################################################################
     ##################################################################################
     # class based views
-    path('list/', MovieList.as_view(), name='movie-list'),
-    path('<int:movie_id>', MovieDetail.as_view(), name='movie-detail'),
+    ##################################################################################
+    path('cbv-movie-list', MovieListAV.as_view(), name='cbv_watchlist'),
+    path('cbv-movie-detail/<int:pk>', MovieDetailAV.as_view(), name='cbv_movie_detail'),
+    ##################################################################################
+
 
     # we will comment this because we will use routers
     # path('stream/', StreamPlatformList.as_view(), name='streamplatform-list'),
