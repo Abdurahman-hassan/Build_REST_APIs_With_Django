@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'watchmate.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'MoviesDB',
+        'NAME': 'watchlistDB',
         'OPTIONS': {
             'read_default_file': '/usr/local/etc/my.cnf',
         },
