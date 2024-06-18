@@ -1,8 +1,10 @@
 """Views for the API."""
 from django.http import Http404
-from rest_framework import status, generics, viewsets
+from rest_framework import status, generics, viewsets, mixins
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -112,6 +114,9 @@ def watch_list_detail_using_serializer_class(request, movie_id):
 # class based views
 ############################################################################################################
 
+############################################################################################################
+# ApiViewClass
+############################################################################################################
 class WatchListAV(APIView):
     """List all movies with ApiViewClass."""
 
@@ -208,46 +213,101 @@ class StreamPlatformDetailAV(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+############################################################################################################
+############################################################################################################
+# Mixins
+############################################################################################################
+
+class ReviewDetailMV(mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
+                     generics.GenericAPIView):
+    """Retrieve, update or delete a review."""
+
+    # These are attributes names and we can't change them
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class ReviewListMXV(mixins.ListModelMixin,
+                    mixins.CreateModelMixin,
+                    generics.GenericAPIView):
+    """List all reviews."""
+
+    # These are attributes names and we can't change them
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    # the perform_create method is a place where you can modify
+    # how the instance save operation is managed.
+    # This method is called by the create method just before it saves an instance.
+    # If you override the create method, you would need to handle all steps manually.
+    # like create a new instance, check if the instance is valid, save the instance, and return the response.
+    # On the other hand, perform_create is specifically designed to handle the save operation.
+    # It receives the validated serializer, and its only job is to save the instance.
+    # This makes it a suitable place to add any custom logic that should run just before or after saving the instance.
+    # the reviewer is not part of the incoming data, but is instead based on the current request.
+    def perform_create(self, serializer):
+        # sets the reviewer to the currently authenticated user when creating a Review.
+        serializer.save(reviewer=self.request.user)
+
+
+############################################################################################################
+############################################################################################################
+# generic class based views with relationships
+############################################################################################################
+
 # We will use the generic class based views itself
 # we don't need to define the get, post, put, delete methods
 # it will be done automatically because it's inherited the mixins.
 
 
-class ReviewCreate(generics.CreateAPIView):
+class ReviewCreateGNV(generics.CreateAPIView):
     """Create a review,
        This class doesn't have a queryset because we don't need to get the reviews.
     """
+    queryset = Review.objects.none()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return Review.objects.all()
-
-    #
     def perform_create(self, serializer):
-        # the pk is the movie id
+        # the pk is the watchlist_id
         watchlist_id = self.kwargs['watchlist_id']
-        movie = WatchList.objects.get(pk=watchlist_id)
+        watchlist = WatchList.objects.get(pk=watchlist_id)
 
         user = self.request.user
-        review_queryset = Review.objects.filter(watchlist=movie, reviewer=user)
+        review_queryset = Review.objects.filter(watchlist=watchlist, reviewer=user)
         if review_queryset.exists():
             raise ValidationError('You have already reviewed this movie')
         # we need to pass the movie to the serializer to save it in the review model
-        serializer.save(watchlist=movie, reviewer=user)
+        # now we don't need to send the movie id and the reviewer id in the request
+        serializer.save(watchlist=watchlist, reviewer=user)
 
 
-class ReviewList(generics.ListAPIView):
+class ReviewListGNV(generics.ListAPIView):
     """List all reviews."""
     # ListCreate will give us the get and post methods
-    # queryset = Review.objects.all()
+    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-    # we need to override the get_queryset method to filter the reviews by platform_id
-
-    # watchlist is the related name of the foreign key in the Review model
     def get_queryset(self):
-        watch_list = self.kwargs['watchlist_id']
-        return Review.objects.filter(watchlist=watch_list)
+        pk = self.kwargs['watchlist_id']
+        return Review.objects.filter(watchlist=pk)
 
     # or
 
@@ -255,14 +315,9 @@ class ReviewList(generics.ListAPIView):
     #     if self.kwargs.get('platform_id'):
     #         return Review.objects.filter(watchlist=self.kwargs.get('platform_id'))
     #     return Review.objects.all()
-    #
-    # # or
-    # def get_queryset(self):
-    #     pk = self.kwargs['platform_id']
-    #     return Review.objects.filter(watchlist=pk) if pk else Review.objects.all()
 
 
-class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+class ReviewDetailGNV(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update or delete a review."""
     # RetrieveUpdateDestroy will give us the get, put, delete methods
     # queryset = Review.objects.all()
@@ -273,82 +328,61 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
         return Review.objects.filter(watchlist=watch_list)
 
 
-# Mixins
-# class ReviewDetail(mixins.RetrieveModelMixin,
-#                    mixins.UpdateModelMixin,
-#                    mixins.DestroyModelMixin,
-#                    generics.GenericAPIView):
-#     """Retrieve, update or delete a review."""
-#
-#     # These are attributes names and we can't change them
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-#
-#     def get(self, request, *args, **kwargs):
-#         return self.retrieve(request, *args, **kwargs)
-#
-#     def put(self, request, *args, **kwargs):
-#         return self.update(request, *args, **kwargs)
-#
-#     def delete(self, request, *args, **kwargs):
-#         return self.destroy(request, *args, **kwargs)
-#
-#
-# class ReviewList(mixins.ListModelMixin,
-#                  mixins.CreateModelMixin,
-#                  generics.GenericAPIView):
-#     """List all reviews."""
-#
-#     # These are attributes names and we can't change them
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-#
-#     def get(self, request, *args, **kwargs):
-#         return self.list(request, *args, **kwargs)
-#
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
+############################################################################################################
+############################################################################################################
+# ViewSets
+############################################################################################################
 
-# model viewset
-class StreamPlatformVs(viewsets.ModelViewSet):
+class StreamPlatformVSV(viewsets.ViewSet):
+    """List all stream platforms."""
+
+    def list(self, request):
+        queryset = StreamPlatform.objects.all()
+        serializer = StreamPlatformSerializer(queryset, many=True,
+                                              context={'request': request})
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = StreamPlatform.objects.all()
+        platform = get_object_or_404(queryset, pk=pk)
+        serializer = StreamPlatformSerializer(platform,
+                                              context={'request': request})
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = StreamPlatformSerializer(data=request.data,
+                                              context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        platform = StreamPlatform.objects.get(pk=pk)
+        serializer = StreamPlatformSerializer(platform, data=request.data,
+                                              context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        platform = StreamPlatform.objects.get(pk=pk)
+        platform.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+############################################################################################################
+############################################################################################################
+# model viewSet
+############################################################################################################
+class StreamPlatformMVV(viewsets.ModelViewSet):
     """List all stream platforms."""
     queryset = StreamPlatform.objects.all()
-    # serializer_class is a unique attribute name and we can't change it
     serializer_class = StreamPlatformSerializer
 
 
-# ViewSets
-
-# class StreamPlatformVs(viewsets.ViewSet):
-#     """List all stream platforms."""
-#
-#     def list(self, request):
-#         queryset = StreamPlatform.objects.all()
-#         serializer = StreamPlatformSerializer(queryset, many=True)
-#         return Response(serializer.data)
-#
-#     def retrieve(self, request, pk=None):
-#         queryset = StreamPlatform.objects.all()
-#         platform = get_object_or_404(queryset, pk=pk)
-#         serializer = StreamPlatformSerializer(platform)
-#         return Response(serializer.data)
-#
-#     def create(self, request):
-#         serializer = StreamPlatformSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     def update(self, request, pk=None):
-#         platform = StreamPlatform.objects.get(pk=pk)
-#         serializer = StreamPlatformSerializer(platform, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     def destroy(self, request, pk=None):
-#         platform = StreamPlatform.objects.get(pk=pk)
-#         platform.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+class StreamPlatformMVVR(viewsets.ReadOnlyModelViewSet):
+    """List all stream platforms."""
+    queryset = StreamPlatform.objects.all()
+    serializer_class = StreamPlatformSerializer
