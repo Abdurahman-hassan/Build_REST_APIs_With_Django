@@ -68,6 +68,11 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
+        # we need to use all fields to show the watchlist field
+        # because we are using it with mixin views
+        # fields = '__all__'
+        # we can exclude the watchlist field
+        # because we pass it automatically in the generic views
         exclude = ('watchlist',)
 
 
