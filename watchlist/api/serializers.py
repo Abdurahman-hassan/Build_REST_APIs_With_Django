@@ -1,7 +1,7 @@
 """Serializers for the watchlist app."""
 from rest_framework import serializers
 
-from watchlist.models import WatchMoviesList, StreamPlatform, Review, Movie
+from watchlist.models import StreamPlatform, Review, WatchList
 
 
 ############################################################################################################
@@ -22,14 +22,14 @@ def description_length(value):
         raise serializers.ValidationError('Description is too short')
 
 
-class ManualMovieSerializer(serializers.Serializer):
+class ManualWatchListSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField()
     description = serializers.CharField(validators=[description_length])
     active = serializers.BooleanField(default=False)
 
     def create(self, validated_data):
-        return Movie.objects.create(**validated_data)
+        return WatchList.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
@@ -72,27 +72,26 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 # we can use ModelSerializer to create a serializer
-class MovieSerializer(serializers.ModelSerializer):
+class WatchListSerializer(serializers.ModelSerializer):
     # we can add extra fields to the serializer
     len_name = serializers.SerializerMethodField()
     len_description = serializers.SerializerMethodField()
-
-    # reviews = ReviewSerializer(many=True, read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Movie
+        model = WatchList
         fields = '__all__'
         # exclude = ('active',)
 
     # The naming convention for the method should be get_fieldname
     def get_len_name(self, object):
-        return len(object.name)
+        return len(object.title)
 
     def get_len_description(self, object):
-        return len(object.description)
+        return len(object.storyline)
 
     def validate(self, data):
-        if data['name'] == data['description']:
+        if data['title'] == data['storyline']:
             raise serializers.ValidationError('Name and description must be different')
         return data
 
@@ -101,7 +100,7 @@ class MovieSerializer(serializers.ModelSerializer):
         if len(value) < 2:
             raise serializers.ValidationError('Name is too short')
 
-        elif Movie.objects.filter(name=value).exists():
+        elif WatchList.objects.filter(name=value).exists():
             raise serializers.ValidationError('Movie name already exists')
         return value
 
