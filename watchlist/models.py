@@ -5,7 +5,7 @@ from django.db import models
 
 class StreamPlatform(models.Model):
     """A stream platform is a service where movies and TV shows are streamed."""
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=30)
     about = models.TextField()
     website = models.URLField()
 
@@ -13,21 +13,20 @@ class StreamPlatform(models.Model):
         return self.name
 
 
-class WatchMoviesList(models.Model):
-    """A movie to watch."""
-    title = models.CharField(max_length=200)
-    description = models.TextField()
+class WatchList(models.Model):
+    """A movie."""
+    title = models.CharField(max_length=50)
+    storyline = models.TextField()
     active = models.BooleanField(default=True)
-    year = models.IntegerField()
-    date_added = models.DateTimeField(auto_now_add=True)
-    # each watchlist item has one stream platform
-    # and each stream platform has many watchlist items
+    created = models.DateTimeField(auto_now_add=True)
+    # each stream platform has many watchlist items
+    # and each watchlist item has one stream platform
     platform = models.ForeignKey(StreamPlatform,
                                  on_delete=models.CASCADE,
                                  related_name='watchlist')
 
     def __str__(self):
-        return f"{self.title} ({self.year})"
+        return f"{self.title} ({self.created.year})"
 
 
 class Review(models.Model):
@@ -43,19 +42,9 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     # each review has one movie
     # and each movie has many reviews
-    watchlist = models.ForeignKey(WatchMoviesList,
+    watchlist = models.ForeignKey(WatchList,
                                   on_delete=models.CASCADE,
                                   related_name='reviews')
 
     def __str__(self):
         return f"{self.watchlist.title} ({self.rating})"
-
-
-class Movie(models.Model):
-    """A movie."""
-    name = models.CharField(max_length=50)
-    description = models.TextField()
-    active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
