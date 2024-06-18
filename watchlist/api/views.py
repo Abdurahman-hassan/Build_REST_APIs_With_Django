@@ -6,13 +6,13 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from watchlist.api.serializers import (MovieSerializer,
+from watchlist.api.serializers import (WatchListSerializer,
                                        StreamPlatformSerializer,
                                        ReviewSerializer,
-                                       ManualMovieSerializer)
-from watchlist.models import WatchMoviesList, StreamPlatform, Review
+                                       ManualWatchListSerializer)
+from watchlist.models import WatchList, StreamPlatform, Review
 from django.http import JsonResponse
-from watchlist.models import Movie
+from watchlist.models import WatchList
 
 
 ############################################################################################################
