@@ -20,8 +20,8 @@ from watchlist.models import WatchList
 # function based views manual serialization/ deserialization
 ############################################################################################################
 
-def movie_list_manual_serializer_deserializer(request):
-    movies = Movie.objects.all()
+def watch_list_manual_serializer_deserializer(request):
+    movies = WatchList.objects.all()
     # all returns a queryset, so we need to convert it to a list
     print(movies.values('name', 'description'))
     data = {
@@ -30,8 +30,8 @@ def movie_list_manual_serializer_deserializer(request):
     return JsonResponse(data)
 
 
-def single_movie_manual_serializer_deserializer(request, movie_id):
-    movie = Movie.objects.get(pk=movie_id)
+def single_watch_list_manual_serializer_deserializer(request, movie_id):
+    movie = WatchList.objects.get(pk=movie_id)
     # get returns a single object, so we can access its attributes directly
     data = {
         'movie': {
@@ -42,8 +42,8 @@ def single_movie_manual_serializer_deserializer(request, movie_id):
     return JsonResponse(data)
 
 
-def movie_detail_manual_serializer_deserializer(request, movie_id):
-    movie = Movie.objects.filter(pk=movie_id)
+def watch_list_detail_manual_serializer_deserializer(request, movie_id):
+    movie = WatchList.objects.filter(pk=movie_id)
     # filter returns a queryset, so we need to convert it to a list
     data = {
         'movie':
@@ -56,13 +56,13 @@ def movie_detail_manual_serializer_deserializer(request, movie_id):
 # function based views using a serializer class
 ############################################################################################################
 @api_view(['GET', 'POST'])
-def movie_list_using_serializer_class(request):
+def watch_list_using_serializer_class(request):
     if request.method == 'GET':
-        movies = Movie.objects.all()
-        serializer = ManualMovieSerializer(movies, many=True)
+        movies = WatchList.objects.all()
+        serializer = ManualWatchListSerializer(movies, many=True)
         return Response(serializer.data)
     if request.method == 'POST':
-        serializer = ManualMovieSerializer(data=request.data)
+        serializer = ManualWatchListSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             # this serializer.data is the data that we just created of the return of the serializer created function
@@ -71,14 +71,14 @@ def movie_list_using_serializer_class(request):
 
 
 @api_view(['GET', 'put', 'delete'])
-def single_movie_using_serializer_class(request, movie_id):
+def single_watch_list_using_serializer_class(request, movie_id):
     if request.method == 'GET':
         try:
-            movie = Movie.objects.get(pk=movie_id)
-        except Movie.DoesNotExist:
+            movie = WatchList.objects.get(pk=movie_id)
+        except WatchList.DoesNotExist:
             return Response(data={'Error': 'Movie not found'},
                             status=status.HTTP_404_NOT_FOUND)
-        serializer = ManualMovieSerializer(movie)
+        serializer = ManualWatchListSerializer(movie)
         return Response(serializer.data)
 
     if request.method == 'PUT':
@@ -86,23 +86,23 @@ def single_movie_using_serializer_class(request, movie_id):
         # it will create a new movie instead of updating the existing one
         # we need to send the movie id in the request {'id':1, ...}
         # or we can get which movie to update and send it to the serializer
-        movie = Movie.objects.get(pk=movie_id)
-        serializer = ManualMovieSerializer(movie, data=request.data)
+        movie = WatchList.objects.get(pk=movie_id)
+        serializer = ManualWatchListSerializer(movie, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'DELETE':
-        movie = Movie.objects.get(pk=movie_id)
+        movie = WatchList.objects.get(pk=movie_id)
         movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def movie_detail_using_serializer_class(request, movie_id):
-    movie = Movie.objects.filter(pk=movie_id)
+def watch_list_detail_using_serializer_class(request, movie_id):
+    movie = WatchList.objects.filter(pk=movie_id)
     # filter returns a queryset, so we need to convert it to a list
-    serializer = ManualMovieSerializer(movie, many=True)
+    serializer = ManualWatchListSerializer(movie, many=True)
     # if I will use JsonResponse i need to pass safe=False
     return JsonResponse(serializer.data, safe=False)
 
@@ -112,16 +112,16 @@ def movie_detail_using_serializer_class(request, movie_id):
 # class based views
 ############################################################################################################
 
-class MovieListAV(APIView):
+class WatchListAV(APIView):
     """List all movies with ApiViewClass."""
 
     def get(self, request):
-        movies = Movie.objects.all()
-        serializer = MovieSerializer(movies, many=True)
+        movies = WatchList.objects.all()
+        serializer = WatchListSerializer(movies, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = MovieSerializer(data=request.data)
+        serializer = WatchListSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             # this serializer.data is the data that we just created of the return of the serializer created function
@@ -129,24 +129,24 @@ class MovieListAV(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MovieDetailAV(APIView):
+class WatchListDetailAV(APIView):
     """Retrieve, update or delete a movie instance."""
 
     def get_object(self, pk):
         try:
-            movie = Movie.objects.get(pk=pk)
+            movie = WatchList.objects.get(pk=pk)
             return movie
-        except Movie.DoesNotExist:
+        except WatchList.DoesNotExist:
             raise Http404
 
     def get(self, request, pk):
         movie = self.get_object(pk)
-        serializer = MovieSerializer(movie)
+        serializer = WatchListSerializer(movie)
         return Response(serializer.data)
 
     def put(self, request, pk):
         movie = self.get_object(pk)
-        serializer = MovieSerializer(movie, data=request.data)
+        serializer = WatchListSerializer(movie, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -157,6 +157,55 @@ class MovieDetailAV(APIView):
         movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class StreamPlatformAV(APIView):
+    """List all stream platforms."""
+
+    def get(self, request):
+        stream_platforms = StreamPlatform.objects.all()
+        # we add context={'request': request} to get the url of the related objects in the serializer
+        # that if we use the HyperlinkedModelSerializer
+        serializer = StreamPlatformSerializer(stream_platforms,
+                                              many=True,
+                                              context={'request': request})
+
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = StreamPlatformSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StreamPlatformDetailAV(APIView):
+    """Retrieve a stream platform."""
+
+    def get_object(self, platform_id):
+        try:
+            platform = StreamPlatform.objects.get(pk=platform_id)
+            return platform
+        except StreamPlatform.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        platform = self.get_object(pk)
+        serializer = StreamPlatformSerializer(platform, context={'request': request})
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        platform = self.get_object(pk)
+        serializer = StreamPlatformSerializer(platform, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        platform = self.get_object(pk)
+        platform.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # We will use the generic class based views itself
@@ -177,7 +226,7 @@ class ReviewCreate(generics.CreateAPIView):
     def perform_create(self, serializer):
         # the pk is the movie id
         watchlist_id = self.kwargs['watchlist_id']
-        movie = WatchMoviesList.objects.get(pk=watchlist_id)
+        movie = WatchList.objects.get(pk=watchlist_id)
 
         user = self.request.user
         review_queryset = Review.objects.filter(watchlist=movie, reviewer=user)
