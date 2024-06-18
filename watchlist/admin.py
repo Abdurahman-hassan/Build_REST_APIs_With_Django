@@ -2,8 +2,8 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import WatchMoviesList, StreamPlatform, Review
+from .models import WatchList, StreamPlatform, Review
 
-admin.site.register(WatchMoviesList)
+admin.site.register(WatchList)
 admin.site.register(StreamPlatform)
 admin.site.register(Review)
