@@ -8,6 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from watchlist.api.permissions import (
+    AdminOrReadOnly,
+    ReviewUserOrReadOnly
+)
 from watchlist.api.serializers import (WatchListSerializer,
                                        StreamPlatformSerializer,
                                        ReviewSerializer,
@@ -322,6 +326,7 @@ class ReviewDetailGNV(generics.RetrieveUpdateDestroyAPIView):
     # RetrieveUpdateDestroy will give us the get, put, delete methods
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [ReviewUserOrReadOnly]
 
     def get_queryset(self):
         watch_list = self.kwargs['watchlist_id']
