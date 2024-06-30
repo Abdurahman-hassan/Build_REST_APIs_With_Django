@@ -19,6 +19,8 @@ class WatchList(models.Model):
     storyline = models.TextField()
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
+    avg_rating = models.FloatField(default=0)
+    number_rating = models.IntegerField(default=0)
     # each stream platform has many watchlist items
     # and each watchlist item has one stream platform
     platform = models.ForeignKey(StreamPlatform,
