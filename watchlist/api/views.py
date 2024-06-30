@@ -298,6 +298,15 @@ class ReviewCreateGNV(generics.CreateAPIView):
         review_queryset = Review.objects.filter(watchlist=watchlist, reviewer=user)
         if review_queryset.exists():
             raise ValidationError('You have already reviewed this movie')
+
+        if watchlist.number_rating == 0:
+            # if the movie has no rating, we will set the rating to 5
+            watchlist.avg_rating = serializer.validated_data['rating']
+        else:
+            watchlist.avg_rating = (watchlist.avg_rating + serializer.validated_data['rating']) / 2
+        watchlist.number_rating = watchlist.number_rating + 1
+        watchlist.save()
+
         # we need to pass the movie to the serializer to save it in the review model
         # now we don't need to send the movie id and the reviewer id in the request
         serializer.save(watchlist=watchlist, reviewer=user)
