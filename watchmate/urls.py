@@ -19,6 +19,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('watch/', include('watchlist.api.urls')),
+    path('account/', include('user.api.urls')),
     # add temp login and logout urls
     path('api-auth/', include('rest_framework.urls')),
 ]
