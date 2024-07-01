@@ -123,6 +123,7 @@ def watch_list_detail_using_serializer_class(request, movie_id):
 ############################################################################################################
 class WatchListAV(APIView):
     """List all movies with ApiViewClass."""
+    permission_classes = [AdminOrReadOnly]
 
     def get(self, request):
         movies = WatchList.objects.all()
@@ -140,6 +141,7 @@ class WatchListAV(APIView):
 
 class WatchListDetailAV(APIView):
     """Retrieve, update or delete a movie instance."""
+    permission_classes = [AdminOrReadOnly]
 
     def get_object(self, pk):
         try:
@@ -169,6 +171,7 @@ class WatchListDetailAV(APIView):
 
 class StreamPlatformAV(APIView):
     """List all stream platforms."""
+    permission_classes = [AdminOrReadOnly]
 
     def get(self, request):
         stream_platforms = StreamPlatform.objects.all()
@@ -190,6 +193,7 @@ class StreamPlatformAV(APIView):
 
 class StreamPlatformDetailAV(APIView):
     """Retrieve a stream platform."""
+    permission_classes = [AdminOrReadOnly]
 
     def get_object(self, platform_id):
         try:
@@ -229,6 +233,8 @@ class ReviewDetailMV(mixins.RetrieveModelMixin,
     """Retrieve, update or delete a review."""
 
     # These are attributes names and we can't change them
+    permission_classes = [AdminOrReadOnly]
+
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -246,6 +252,8 @@ class ReviewListMXV(mixins.ListModelMixin,
                     mixins.CreateModelMixin,
                     generics.GenericAPIView):
     """List all reviews."""
+    permission_classes = [AdminOrReadOnly]
+
 
     # These are attributes names and we can't change them
     queryset = Review.objects.all()
@@ -285,6 +293,8 @@ class ReviewCreateGNV(generics.CreateAPIView):
     """Create a review,
        This class doesn't have a queryset because we don't need to get the reviews.
     """
+    permission_classes = [AdminOrReadOnly]
+
     queryset = Review.objects.none()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
@@ -315,6 +325,8 @@ class ReviewCreateGNV(generics.CreateAPIView):
 class ReviewListGNV(generics.ListAPIView):
     """List all reviews."""
     # ListCreate will give us the get and post methods
+    permission_classes = [AdminOrReadOnly]
+
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -332,6 +344,8 @@ class ReviewListGNV(generics.ListAPIView):
 
 class ReviewDetailGNV(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, update or delete a review."""
+    permission_classes = [AdminOrReadOnly]
+
     # RetrieveUpdateDestroy will give us the get, put, delete methods
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
@@ -349,6 +363,7 @@ class ReviewDetailGNV(generics.RetrieveUpdateDestroyAPIView):
 
 class StreamPlatformVSV(viewsets.ViewSet):
     """List all stream platforms."""
+    permission_classes = [AdminOrReadOnly]
 
     def list(self, request):
         queryset = StreamPlatform.objects.all()
@@ -392,11 +407,15 @@ class StreamPlatformVSV(viewsets.ViewSet):
 ############################################################################################################
 class StreamPlatformMVV(viewsets.ModelViewSet):
     """List all stream platforms."""
+    permission_classes = [AdminOrReadOnly]
+
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
 
 
 class StreamPlatformMVVR(viewsets.ReadOnlyModelViewSet):
     """List all stream platforms."""
+    permission_classes = [AdminOrReadOnly]
+
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
